@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Shield India</title>
+    <style>
+        body{
+            font-family:Arial;
+            background:#0f172a;
+            color:white;
+            text-align:center;
+            padding:30px;
+        }
+        .container{
+            background:#1e293b;
+            padding:20px;
+            border-radius:10px;
+            margin:20px auto;
+            width:420px;
+        }
+        input,textarea,select{
+            width:90%;
+            padding:10px;
+            margin:10px;
+            border-radius:5px;
+            border:none;
+        }
+        button{
+            padding:10px 20px;
+            background:#3b82f6;
+            color:white;
+            border:none;
+            border-radius:5px;
+            cursor:pointer;
+        }
+        button:hover{
+            background:#2563eb;
+        }
+    </style>
+</head>
+<body>
+
+<div style="background:#020617;padding:15px;border-radius:10px;margin-bottom:20px;">
+<h2 style="color:#22c55e;">🛡️ Shield India Cyber Security</h2>
+<p>Real-time Scam Detection & Voice Alerts</p>
+</div>
+
+<div class="container">
+<h2>🌐 Select Language</h2>
+<select id="language" onchange="updatePlaceholder()">
+<option value="en-IN">English</option>
+<option value="hi-IN">Hindi</option>
+</select>
+</div>
+
+<div class="container">
+<h2>🔍 Scam Message Detector</h2>
+<textarea id="message" placeholder="Type or paste message here"></textarea>
+<button onclick="detectScam()">Check Message</button>
+<button onclick="startVoice()">🎤 Voice Input</button>
+<h3 id="result"></h3>
+</div>
+
+<div class="container">
+<h2>🔗 Phishing Link Checker</h2>
+<textarea id="message" placeholder="Type or paste message here"></textarea>
+<button onclick="checkLink()">Check Link</button>
+<h3 id="linkResult"></h3>
+</div>
+
+<div class="container">
+<h2>🆘 Cyber Crime Help</h2>
+<h3 style="color:#22c55e;">📞 Helpline: 1930</h3>
+<a href="https://cybercrime.gov.in" target="_blank">
+<button>Report on Official Portal</button>
+</a>
+</div>
+
+<script>
+    function updatePlaceholder(){
+
+let lang = document.getElementById("language").value;
+
+let textarea = document.getElementById("message");
+
+if(lang === "hi-IN"){
+textarea.placeholder = "संदेश यहां पेस्ट करें";
+}
+else{
+textarea.placeholder = "Type or paste message here";
+}
+
+}
+
+async function detectScam(){
+
+let message = document.getElementById("message").value;
+let language = document.getElementById("language").value;
+
+let res = await fetch("http://127.0.0.1:8000/detect_scam",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+        message: message,
+        language: language
+    })
+});
+
+let data = await res.json();
+
+document.getElementById("result").innerText = data.alert;
+}
+
+function startVoice(){
+    let language = document.getElementById("language").value;
+
+    let recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = language;
+    recognition.start();
+
+    recognition.onresult = function(event){
+        let speech = event.results[0][0].transcript;
+        document.getElementById("message").value = speech;
+        detectScam();
+    }
+}
+
+async function checkLink(){
+    let link = document.getElementById("link").value;
+
+    let res = await fetch("http://127.0.0.1:8000/check_link",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({link:link})
+    });
+
+    let data = await res.json();
+    document.getElementById("linkResult").innerText = data.alert;
+}
+updatePlaceholder();
+
+</script>
+</body>
+</html>
