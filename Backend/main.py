@@ -57,23 +57,27 @@ def detect_scam(req: MessageRequest):
 
     text = req.message.lower()
 
+    risk_score = 0
+
     for word in english_keywords:
         if word in text:
-            return {
-                "scam": True,
-                "alert": "⚠️ This message looks like a scam."
-            }
+            risk_score += 20
 
     for word in hindi_keywords:
         if word in text:
-            return {
-                "scam": True,
-                "alert": "⚠️ यह संदेश धोखाधड़ी जैसा लग रहा है।"
-            }
+            risk_score += 20
+
+    if risk_score >= 40:
+        return {
+            "scam": True,
+            "alert": "⚠️ Scam message detected!",
+            "risk_score": risk_score
+        }
 
     return {
         "scam": False,
-        "alert": "✅ Message looks safe."
+        "alert": "✅ Message looks safe.",
+        "risk_score": risk_score
     }
 
 # Link checker
