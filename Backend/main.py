@@ -85,16 +85,19 @@ def check_link(req: LinkRequest):
     suspicious_domains = [
         "bit.ly",
         "tinyurl",
-        "grabify",
         "shorturl",
-        "phishing"
+        "grabify",
+        "phishing",
+        "free-money",
+        "win",
+        "bonus"
     ]
 
     for domain in suspicious_domains:
         if domain in link:
             return {
                 "scam": True,
-                "alert": "⚠️ Suspicious shortened link detected!"
+                "alert": "⚠️ Suspicious link detected! Do not open this link."
             }
 
     return {
