@@ -1,10 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import pyttsx3
 
 app = FastAPI()
 
+# Enable CORS for frontend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -13,106 +13,79 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-class Message(BaseModel):
+# Request models
+class MessageRequest(BaseModel):
     message: str
     language: str
 
-def speak(text, language):
-    engine = pyttsx3.init()
-    voices = engine.getProperty('voices')
 
-    if language == "hi-IN" and len(voices) > 1:
-        engine.setProperty('voice', voices[1].id)
-    else:
-        engine.setProperty('voice', voices[0].id)
+class LinkRequest(BaseModel):
+    link: str
 
-    engine.say(text)
-    engine.runAndWait()
 
-def detect_scam_logic(message):
+# Scam keywords
+english_keywords = [
+    "bank", "otp", "verify", "account blocked", "click now",
+    "urgent", "password", "lottery", "winner", "free money"
+]
 
-    msg = message.lower()
+hindi_keywords = [
+    "बैंक", "ओटीपी", "तुरंत", "इनाम", "पासवर्ड",
+    "खाता बंद", "क्लिक करें", "लॉटरी"
+]
 
-    # English scam keywords
-    english_keywords = [
-        "otp", "one time password", "bank", "bank account",
-        "verify", "verification", "click", "link",
-        "urgent", "immediately", "update", "kyc",
-        "password", "suspend", "account",
-        "free", "win", "lottery"
-    ]
-
-    # Hindi scam keywords
-    hindi_keywords = [
-        "ओटीपी", "वन टाइम पासवर्ड", "बैंक", "बैंक खाता",
-        "सत्यापित", "सत्यापन", "लिंक",
-        "तुरंत", "अभी", "अपडेट", "केवाईसी",
-        "पासवर्ड", "खाता", "निलंबित",
-        "इनाम", "लॉटरी", "जीत"
-    ]
-
-    score = 0
-
-    # English keyword match
-    for word in english_keywords:
-        if word in msg:
-            score += 20
-
-    # Hindi keyword match
-    for word in hindi_keywords:
-        if word in msg:
-            score += 20
-
-    # OTP numeric pattern detection
-    if any(char.isdigit() for char in msg) and ("otp" in msg or "ओटीपी" in msg or "one time password" in msg):
-        score += 40
-
-    if score > 100:
-        score = 100
-
-    scam = score >= 50
-
-    if scam:
-        alert_en = "Warning! This message looks like an OTP scam. Do not share OTP."
-        alert_hi = "चेतावनी! यह संदेश OTP स्कैम जैसा लगता है। OTP साझा न करें।"
-    else:
-        alert_en = "Message looks safe."
-        alert_hi = "संदेश सुरक्षित है।"
-
-    return {
-        "scam": scam,
-        "scam_score": score,
-        "alert_en": alert_en,
-        "alert_hi": alert_hi
-    }
 
 @app.get("/")
 def home():
-    return {"message": "Shield India API Running"}
+    return {"message": "Shield India API running"}
+
 
 @app.post("/detect_scam")
-def detect_scam(data: Message):
+def detect_scam(req: MessageRequest):
 
-    result = detect_scam_logic(data.message)
+    text = req.message.lower()
 
-    if data.language == "hi-IN":
-        speak(result["alert_hi"], "hi-IN")
-        alert = result["alert_hi"]
-    else:
-        speak(result["alert_en"], "en-IN")
-        alert = result["alert_en"]
+    for word in english_keywords:
+        if word in text:
+            return {
+                "scam": True,
+                "alert": "⚠️ This message looks like a scam."
+            }
+
+    for word in hindi_keywords:
+        if word in text:
+            return {
+                "scam": True,
+                "alert": "⚠️ यह संदेश धोखाधड़ी जैसा लग रहा है।"
+            }
 
     return {
-        "alert": alert,
-        "scam_score": result["scam_score"]
+        "scam": False,
+        "alert": "✅ Message looks safe."
     }
 
+
 @app.post("/check_link")
-def check_link(data: dict):
-    link = data.get("link", "").lower()
+def check_link(req: LinkRequest):
 
-    suspicious = ["bit.ly", "tinyurl", "free", "win", "click"]
+    link = req.link.lower()
 
-    if any(word in link for word in suspicious):
-        return {"scam": True, "alert": "⚠️ संदिग्ध फिशिंग लिंक"}
-    return {"scam": False, "alert": "✅ लिंक सुरक्षित है"}
+    suspicious_domains = [
+        "bit.ly",
+        "tinyurl",
+        "shorturl",
+        "grabify",
+        "phishing"
+    ]
+
+    for domain in suspicious_domains:
+        if domain in link:
+            return {
+                "scam": True,
+                "alert": "⚠️ Suspicious shortened link detected!"
+            }
+
+    return {
+        "scam": False,
+        "alert": "✅ Link looks safe."
+    }
