@@ -96,7 +96,7 @@ async function detectScam(){
 let message = document.getElementById("message").value;
 let language = document.getElementById("language").value;
 
-let res = await fetch("http://127.0.0.1:8000/detect_scam",{
+let res = await fetch("https://shield-india-api.onrender.com/detect_scam",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({
@@ -127,7 +127,7 @@ function startVoice(){
 async function checkLink(){
     let link = document.getElementById("link").value;
 
-    let res = await fetch("http://127.0.0.1:8000/check_link",{
+    let res = await fetch("hhttps://shield-india-api.onrender.com/check_link",{
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify({link:link})
