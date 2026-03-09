@@ -64,11 +64,22 @@ button{
 const API = "https://shield-india-api.onrender.com";
 
 function speak(text){
+
+    if(!('speechSynthesis' in window)){
+        console.log("Speech not supported in this browser");
+        return;
+    }
+
     const speech = new SpeechSynthesisUtterance(text);
-    speech.lang = "en-IN";
+
+    speech.lang = "en-US";
+    speech.rate = 1;
+    speech.pitch = 1;
+    speech.volume = 1;
+
+    speechSynthesis.cancel();   // stop previous speech
     speechSynthesis.speak(speech);
 }
-
 async function detectScam(){
 
     const message = document.getElementById("message").value;
