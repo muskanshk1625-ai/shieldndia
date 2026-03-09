@@ -1,143 +1,119 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Shield India</title>
-    <style>
-        body{
-            font-family:Arial;
-            background:#0f172a;
-            color:white;
-            text-align:center;
-            padding:30px;
-        }
-        .container{
-            background:#1e293b;
-            padding:20px;
-            border-radius:10px;
-            margin:20px auto;
-            width:420px;
-        }
-        input,textarea,select{
-            width:90%;
-            padding:10px;
-            margin:10px;
-            border-radius:5px;
-            border:none;
-        }
-        button{
-            padding:10px 20px;
-            background:#3b82f6;
-            color:white;
-            border:none;
-            border-radius:5px;
-            cursor:pointer;
-        }
-        button:hover{
-            background:#2563eb;
-        }
-    </style>
+<title>Shield India</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body{
+    font-family: Arial;
+    text-align:center;
+    margin:40px;
+}
+input, textarea, select{
+    width:80%;
+    padding:10px;
+    margin:10px;
+}
+button{
+    padding:10px 20px;
+    font-size:16px;
+}
+#result, #linkResult{
+    font-weight:bold;
+    margin-top:15px;
+}
+</style>
 </head>
+
 <body>
 
-<div style="background:#020617;padding:15px;border-radius:10px;margin-bottom:20px;">
-<h2 style="color:#22c55e;">🛡️ Shield India Cyber Security</h2>
-<p>Real-time Scam Detection & Voice Alerts</p>
-</div>
+<h1>🛡 Shield India</h1>
+<p>Cyber Scam Detection Tool</p>
 
-<div class="container">
-<h2>🌐 Select Language</h2>
-<select id="language" onchange="updatePlaceholder()">
-<option value="en-IN">English</option>
-<option value="hi-IN">Hindi</option>
+<h2>Check Message</h2>
+
+<select id="language">
+<option value="english">English</option>
+<option value="hindi">Hindi</option>
 </select>
-</div>
 
-<div class="container">
-<h2>🔍 Scam Message Detector</h2>
-<textarea id="message" placeholder="Type or paste message here"></textarea>
-<button onclick="detectScam()">Check Message</button>
-<button onclick="startVoice()">🎤 Voice Input</button>
-<h3 id="result"></h3>
-</div>
+<br>
 
-<div class="container">
-<h2>🔗 Phishing Link Checker</h2>
-<textarea id="message" placeholder="Type or paste message here"></textarea>
+<textarea id="message" placeholder="Paste suspicious message here"></textarea>
+
+<br>
+
+<button onclick="detectScam()">Detect Scam</button>
+
+<p id="result"></p>
+
+<hr>
+
+<h2>Check Link</h2>
+
+<input id="link" placeholder="Paste suspicious link">
+
+<br>
+
 <button onclick="checkLink()">Check Link</button>
-<h3 id="linkResult"></h3>
-</div>
 
-<div class="container">
-<h2>🆘 Cyber Crime Help</h2>
-<h3 style="color:#22c55e;">📞 Helpline: 1930</h3>
-<a href="https://cybercrime.gov.in" target="_blank">
-<button>Report on Official Portal</button>
-</a>
-</div>
+<p id="linkResult"></p>
 
 <script>
-    function updatePlaceholder(){
 
-let lang = document.getElementById("language").value;
+const API = "https://shield-india-api.onrender.com";
 
-let textarea = document.getElementById("message");
-
-if(lang === "hi-IN"){
-textarea.placeholder = "संदेश यहां पेस्ट करें";
-}
-else{
-textarea.placeholder = "Type or paste message here";
-}
-
+function speak(text){
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = "en-IN";
+    speechSynthesis.speak(speech);
 }
 
 async function detectScam(){
 
-let message = document.getElementById("message").value;
-let language = document.getElementById("language").value;
+    const message = document.getElementById("message").value;
+    const language = document.getElementById("language").value;
 
-let res = await fetch("https://shield-india-api.onrender.com/detect_scam",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({
-        message: message,
-        language: language
-    })
-});
+    const response = await fetch(API + "/detect_scam", {
+        method:"POST",
+        headers:{
+            "Content-Type":"application/json"
+        },
+        body: JSON.stringify({
+            message: message,
+            language: language
+        })
+    });
 
-let data = await res.json();
+    const data = await response.json();
 
-document.getElementById("result").innerText = data.alert;
-}
+    document.getElementById("result").innerText = data.alert;
 
-function startVoice(){
-    let language = document.getElementById("language").value;
-
-    let recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    recognition.lang = language;
-    recognition.start();
-
-    recognition.onresult = function(event){
-        let speech = event.results[0][0].transcript;
-        document.getElementById("message").value = speech;
-        detectScam();
-    }
+    speak(data.alert);
 }
 
 async function checkLink(){
-    let link = document.getElementById("link").value;
 
-    let res = await fetch("hhttps://shield-india-api.onrender.com/check_link",{
+    const link = document.getElementById("link").value;
+
+    const response = await fetch(API + "/check_link", {
         method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({link:link})
+        headers:{
+            "Content-Type":"application/json"
+        },
+        body: JSON.stringify({
+            link: link
+        })
     });
 
-    let data = await res.json();
+    const data = await response.json();
+
     document.getElementById("linkResult").innerText = data.alert;
+
+    speak(data.alert);
 }
-updatePlaceholder();
 
 </script>
+
 </body>
 </html>
