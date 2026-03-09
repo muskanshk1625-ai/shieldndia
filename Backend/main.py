@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 app = FastAPI()
 
-# Enable CORS for frontend
+# Allow frontend to connect
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -18,28 +18,40 @@ class MessageRequest(BaseModel):
     message: str
     language: str
 
-
 class LinkRequest(BaseModel):
     link: str
 
-
-# Scam keywords
+# Scam keyword lists
 english_keywords = [
-    "bank", "otp", "verify", "account blocked", "click now",
-    "urgent", "password", "lottery", "winner", "free money"
+    "bank",
+    "otp",
+    "verify",
+    "account blocked",
+    "click now",
+    "urgent",
+    "password",
+    "lottery",
+    "winner",
+    "free money"
 ]
 
 hindi_keywords = [
-    "बैंक", "ओटीपी", "तुरंत", "इनाम", "पासवर्ड",
-    "खाता बंद", "क्लिक करें", "लॉटरी"
+    "बैंक",
+    "ओटीपी",
+    "तुरंत",
+    "इनाम",
+    "पासवर्ड",
+    "खाता बंद",
+    "क्लिक करें",
+    "लॉटरी"
 ]
 
-
+# Home route
 @app.get("/")
 def home():
-    return {"message": "Shield India API running"}
+    return {"message": "Shield India API is running"}
 
-
+# Message scam detection
 @app.post("/detect_scam")
 def detect_scam(req: MessageRequest):
 
@@ -64,7 +76,7 @@ def detect_scam(req: MessageRequest):
         "alert": "✅ Message looks safe."
     }
 
-
+# Link checker
 @app.post("/check_link")
 def check_link(req: LinkRequest):
 
@@ -73,8 +85,8 @@ def check_link(req: LinkRequest):
     suspicious_domains = [
         "bit.ly",
         "tinyurl",
-        "shorturl",
         "grabify",
+        "shorturl",
         "phishing"
     ]
 
