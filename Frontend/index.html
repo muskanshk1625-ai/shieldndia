@@ -1,14 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
+
 <title>Shield India</title>
+
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
+
 body{
-font-family:Arial;
-text-align:center;
-margin:40px;
+font-family: Arial;
+text-align: center;
+margin: 40px;
 }
 
 textarea,input,select{
@@ -27,24 +30,33 @@ font-weight:bold;
 margin-top:15px;
 font-size:18px;
 }
+
 </style>
+
 </head>
 
 <body>
 
 <h1>🛡 Shield India</h1>
+
 <p>Cyber Scam Detection Tool</p>
+
+<hr>
+
 
 <h2>Check Message</h2>
 
 <select id="language">
+
 <option value="english">English</option>
+
 <option value="hindi">Hindi</option>
+
 </select>
 
 <br>
 
-<textarea id="message" placeholder="Paste suspicious message"></textarea>
+<textarea id="message" placeholder="Paste suspicious message here"></textarea>
 
 <br>
 
@@ -54,15 +66,17 @@ font-size:18px;
 
 <hr>
 
+
 <h2>Check Link</h2>
 
-<input id="link" placeholder="Paste suspicious link">
+<input id="link" placeholder="Paste suspicious link here">
 
 <br>
 
 <button onclick="checkLink()">Check Link</button>
 
 <p id="linkResult"></p>
+
 
 <script>
 
@@ -79,18 +93,25 @@ return;
 const speech = new SpeechSynthesisUtterance(text);
 
 speech.lang = "en-US";
+
 speech.rate = 1;
+
 speech.pitch = 1;
+
 speech.volume = 1;
 
 speechSynthesis.cancel();
+
 speechSynthesis.speak(speech);
+
 }
+
 
 
 async function detectScam(){
 
 const message = document.getElementById("message").value;
+
 const language = document.getElementById("language").value;
 
 const response = await fetch(API + "/detect_scam",{
@@ -98,23 +119,31 @@ const response = await fetch(API + "/detect_scam",{
 method:"POST",
 
 headers:{
+
 "Content-Type":"application/json"
+
 },
 
 body: JSON.stringify({
+
 message: message,
+
 language: language
+
 })
 
 });
 
 const data = await response.json();
 
+console.log(data);
+
 document.getElementById("result").innerText = data.alert;
 
 speak(data.alert);
 
 }
+
 
 
 async function checkLink(){
@@ -126,16 +155,22 @@ const response = await fetch(API + "/check_link",{
 method:"POST",
 
 headers:{
+
 "Content-Type":"application/json"
+
 },
 
 body: JSON.stringify({
+
 link: link
+
 })
 
 });
 
 const data = await response.json();
+
+console.log(data);
 
 document.getElementById("linkResult").innerText = data.alert;
 
