@@ -3,24 +3,29 @@
 <head>
 <title>Shield India</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <style>
 body{
-    font-family: Arial;
-    text-align:center;
-    margin:40px;
+font-family:Arial;
+text-align:center;
+margin:40px;
 }
-input, textarea, select{
-    width:80%;
-    padding:10px;
-    margin:10px;
+
+textarea,input,select{
+width:80%;
+padding:10px;
+margin:10px;
 }
+
 button{
-    padding:10px 20px;
-    font-size:16px;
+padding:10px 20px;
+font-size:16px;
 }
-#result, #linkResult{
-    font-weight:bold;
-    margin-top:15px;
+
+#result,#linkResult{
+font-weight:bold;
+margin-top:15px;
+font-size:18px;
 }
 </style>
 </head>
@@ -39,7 +44,7 @@ button{
 
 <br>
 
-<textarea id="message" placeholder="Paste suspicious message here"></textarea>
+<textarea id="message" placeholder="Paste suspicious message"></textarea>
 
 <br>
 
@@ -63,65 +68,79 @@ button{
 
 const API = "https://shield-india-api.onrender.com";
 
+
 function speak(text){
 
-    if(!('speechSynthesis' in window)){
-        console.log("Speech not supported in this browser");
-        return;
-    }
-
-    const speech = new SpeechSynthesisUtterance(text);
-
-    speech.lang = "en-US";
-    speech.rate = 1;
-    speech.pitch = 1;
-    speech.volume = 1;
-
-    speechSynthesis.cancel();   // stop previous speech
-    speechSynthesis.speak(speech);
+if(!('speechSynthesis' in window)){
+console.log("Speech not supported");
+return;
 }
+
+const speech = new SpeechSynthesisUtterance(text);
+
+speech.lang = "en-US";
+speech.rate = 1;
+speech.pitch = 1;
+speech.volume = 1;
+
+speechSynthesis.cancel();
+speechSynthesis.speak(speech);
+}
+
+
 async function detectScam(){
 
-    const message = document.getElementById("message").value;
-    const language = document.getElementById("language").value;
+const message = document.getElementById("message").value;
+const language = document.getElementById("language").value;
 
-    const response = await fetch(API + "/detect_scam", {
-        method:"POST",
-        headers:{
-            "Content-Type":"application/json"
-        },
-        body: JSON.stringify({
-            message: message,
-            language: language
-        })
-    });
+const response = await fetch(API + "/detect_scam",{
 
-    const data = await response.json();
+method:"POST",
 
-    document.getElementById("result").innerText = data.alert;
+headers:{
+"Content-Type":"application/json"
+},
 
-    speak(data.alert);
+body: JSON.stringify({
+message: message,
+language: language
+})
+
+});
+
+const data = await response.json();
+
+document.getElementById("result").innerText = data.alert;
+
+speak(data.alert);
+
 }
+
 
 async function checkLink(){
 
-    const link = document.getElementById("link").value;
+const link = document.getElementById("link").value;
 
-    const response = await fetch(API + "/check_link", {
-        method:"POST",
-        headers:{
-            "Content-Type":"application/json"
-        },
-        body: JSON.stringify({
-            link: link
-        })
-    });
+const response = await fetch(API + "/check_link",{
 
-    const data = await response.json();
+method:"POST",
 
-    document.getElementById("linkResult").innerText = data.alert;
+headers:{
+"Content-Type":"application/json"
+},
 
-    speak(data.alert);
+body: JSON.stringify({
+link: link
+})
+
+});
+
+const data = await response.json();
+
+document.getElementById("linkResult").innerText = data.alert;
+
+speak(data.alert);
+
 }
 
 </script>
