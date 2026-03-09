@@ -1,18 +1,22 @@
 import time
 import requests
-import pyttsx3
 import pyperclip
+import pyttsx3
+from plyer import notification
 
-API = "http://127.0.0.1:8000/check_link"
+# Your deployed API
+API = "https://shield-india-api.onrender.com/check_link"
+
+# voice engine
+engine = pyttsx3.init()
 
 def speak(text):
-    engine = pyttsx3.init()
     engine.say(text)
     engine.runAndWait()
 
 last_text = ""
 
-print("Background link scanner running...")
+print("🛡 Shield India Background Link Scanner Running...")
 
 while True:
     try:
@@ -22,19 +26,33 @@ while True:
             last_text = text
 
             if text.startswith("http"):
-                try:
-                    response = requests.post(API, json={"link": text})
-                    data = response.json()
 
-                    if data.get("scam"):
-                        print("⚠️ Scam link detected!")
-                        speak("Warning! Suspicious link detected")
-                    else:
-                        print("✅ Link looks safe")
-                except Exception as e:
-                    print("Error calling API:", e)
+                response = requests.post(API, json={"link": text})
+                data = response.json()
+
+                if data.get("scam"):
+
+                    print("⚠️ Scam link detected!")
+
+                    notification.notify(
+                        title="⚠️ Shield India Alert",
+                        message="Suspicious link detected! Do NOT open this link.",
+                        timeout=6
+                    )
+
+                    speak("Warning. Suspicious link detected. Do not open it.")
+
+                else:
+
+                    print("✅ Link looks safe")
+
+                    notification.notify(
+                        title="Shield India",
+                        message="Link looks safe.",
+                        timeout=4
+                    )
 
     except Exception as e:
-        print("Error reading clipboard:", e)
+        print("Error:", e)
 
     time.sleep(2)
